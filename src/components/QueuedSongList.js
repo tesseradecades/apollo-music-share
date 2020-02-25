@@ -7,7 +7,7 @@ function QueuedSongList(){
     const song = {
         title: 'Lilly',
         artist: 'IDK',
-        thumbnail: "https://www.dmsguild.com/images/8135/239925-thumb140.jpg",
+        thumbnail: "https://upload.wikimedia.org/wikipedia/en/7/7d/ISHEREAL.jpg",
     }
     return greaterThanMd && (
         <div style={{margin: '10px 0'}}>

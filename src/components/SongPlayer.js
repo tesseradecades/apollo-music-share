@@ -67,7 +67,7 @@ function SongPlayer(){
                 </div>
                 <CardMedia
                     className={classes.thumbnail}
-                    image="https://www.dmsguild.com/images/8135/239925-thumb140.jpg"
+                    image="https://upload.wikimedia.org/wikipedia/en/7/7d/ISHEREAL.jpg"
                 />
             </Card>
             <QueuedSongList/>
