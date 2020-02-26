@@ -3,8 +3,7 @@ import { Card, CardActions, CircularProgress, CardContent, CardMedia, Typography
 import { PlayArrow, Save, Pause } from '@material-ui/icons';
 import { useSubscription, useMutation } from '@apollo/react-hooks';
 import { GET_SONGS } from '../graphql/subscriptions';
-import { SongContext } from '../App';
-import {PLAY_SONG, PAUSE_SONG, SET_SONG} from '../reducer';
+import {PLAY_SONG, PAUSE_SONG, SET_SONG, SongContext} from '../reducer';
 import { ADD_OR_REMOVE_FROM_QUEUE } from '../graphql/mutations';
 
 function SongList(){
