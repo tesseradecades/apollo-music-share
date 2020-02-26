@@ -1,7 +1,9 @@
 import React from 'react';
 import QueuedSongList from './QueuedSongList';
 import { Card, CardContent, Typography, IconButton, Slider, CardMedia, makeStyles } from '@material-ui/core';
-import { SkipPrevious, SkipNext, PlayArrow } from '@material-ui/icons';
+import { SkipPrevious, SkipNext, PlayArrow, Pause } from '@material-ui/icons';
+import { SongContext } from '../App';
+import { PAUSE_SONG, PLAY_SONG} from '../reducer';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -31,25 +33,31 @@ const useStyles = makeStyles(theme=>({
     },
 }));
 function SongPlayer(){
+    const {state, dispatch} = React.useContext(SongContext);
     const classes = useStyles();
+
+    function handleTogglePlay(){
+        dispatch({type: state.isPlaying ? PAUSE_SONG : PLAY_SONG});
+    }
+
     return (
         <>
             <Card className={classes.container} variant="outlined">
                 <div className={classes.details}>
                     <CardContent className={classes.content}>
                         <Typography variant="h5" component="h3">
-                            Title
+                            {state.song.title}
                         </Typography>
                         <Typography variant="subtitle1" component="p" color="textSecondary">
-                            Artist
+                            {state.song.artist}
                         </Typography>
                     </CardContent>
                     <div className={classes.controls}>
                         <IconButton>
                             <SkipPrevious/>
                         </IconButton>
-                        <IconButton>
-                            <PlayArrow className={classes.playIcon}/>
+                        <IconButton onClick={handleTogglePlay}>
+                            {state.isPlaying ? <Pause className={classes.playIcon}/> : <PlayArrow className={classes.playIcon}/>}
                         </IconButton>
                         <IconButton>
                             <SkipNext/>
@@ -67,7 +75,7 @@ function SongPlayer(){
                 </div>
                 <CardMedia
                     className={classes.thumbnail}
-                    image="https://upload.wikimedia.org/wikipedia/en/7/7d/ISHEREAL.jpg"
+                    image={state.song.thumbnail}
                 />
             </Card>
             <QueuedSongList/>

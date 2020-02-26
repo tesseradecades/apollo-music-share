@@ -4,12 +4,27 @@ import AddSong from './components/AddSong';
 import SongList from './components/SongList';
 import SongPlayer from './components/SongPlayer';
 import {Grid, Hidden, useMediaQuery} from '@material-ui/core';
+import SongReducer from './reducer';
+
+export const SongContext = React.createContext({
+  song:{
+    id:"501e4e2c-2c43-44a8-b3f4-27d0e5a3bb57",
+    title: "The Race Freestyle (Tay-K)",
+    artist: "Isaiah Rashad",
+    thumbnail : "http://img.youtube.com/vi/Rf4S_44jkAY/0.jpg",
+    duration: 116,
+    url: "https://www.youtube.com/watch?v=Rf4S_44jkAY",
+  },
+  isPlaying: false
+});
 
 function App() {
   const greaterThanMd =useMediaQuery(theme=>theme.breakpoints.up('md'));
   const greaterThanSm =useMediaQuery(theme=>theme.breakpoints.up('sm'));
+  const initialSongState = React.useContext(SongContext);
+  const [state, dispatch] = React.useReducer(SongReducer,initialSongState);
   return (
-    <>
+    <SongContext.Provider value={{state,dispatch}}>
 
       <Hidden only="xs">
         <Header/>
@@ -41,7 +56,7 @@ function App() {
           <SongPlayer/>
         </Grid>
       </Grid>
-    </>
+    </SongContext.Provider>
   );
 }
 
