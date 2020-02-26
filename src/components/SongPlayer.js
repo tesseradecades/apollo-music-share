@@ -4,6 +4,9 @@ import { Card, CardContent, Typography, IconButton, Slider, CardMedia, makeStyle
 import { SkipPrevious, SkipNext, PlayArrow, Pause } from '@material-ui/icons';
 import { SongContext } from '../App';
 import { PAUSE_SONG, PLAY_SONG} from '../reducer';
+import { GET_QUEUED_SONGS } from '../graphql/queries';
+import { useQuery } from '@apollo/react-hooks';
+import ReactPlayer from 'react-player';
 
 const useStyles = makeStyles(theme=>({
     container:{
@@ -34,10 +37,32 @@ const useStyles = makeStyles(theme=>({
 }));
 function SongPlayer(){
     const {state, dispatch} = React.useContext(SongContext);
+    const {data} = useQuery(GET_QUEUED_SONGS);
     const classes = useStyles();
+    const [played, setPlayed] = React.useState(0);
+    const [seeking,setSeeking] = React.useState(false);
+    const reactPlayerRef = React.useRef()
+    const [playedSeconds, setPlayedSeconds] = React.useState(0);
+
+    function handleProgressChange(event,newValue){
+        setPlayed(newValue);
+    }
+
+    function handleSeekMouseDown(){
+        setSeeking(true);
+    }
+
+    function handleSeekMouseUp(){
+        setSeeking(false);
+        reactPlayerRef.current.seekTo(played);
+    }
 
     function handleTogglePlay(){
         dispatch({type: state.isPlaying ? PAUSE_SONG : PLAY_SONG});
+    }
+
+    function formatDuration(seconds){
+        return new Date(seconds*1000).toISOString().substr(11,8)
     }
 
     return (
@@ -63,24 +88,38 @@ function SongPlayer(){
                             <SkipNext/>
                         </IconButton>
                         <Typography variant="subtitle1" component="p" color="textSecondary">
-                            00:00:00
+                            {formatDuration(playedSeconds)}
                         </Typography>
                     </div>
                     <Slider
                         max={1}
                         min={0}
+                        onChange={handleProgressChange}
+                        onMouseDown={handleSeekMouseDown}
+                        onMouseUp={handleSeekMouseUp}
                         step={0.01}
                         type="range"
+                        value={played}
                     />
                 </div>
+                <ReactPlayer 
+                    hidden url={state.song.url} 
+                    onProgress={({played, playedSeconds})=>{
+                        if(!seeking){
+                            setPlayed(played);
+                            setPlayedSeconds(playedSeconds);
+                        }
+                    }}
+                    playing={state.isPlaying}
+                    ref={reactPlayerRef}
+                    />
                 <CardMedia
                     className={classes.thumbnail}
                     image={state.song.thumbnail}
                 />
             </Card>
-            <QueuedSongList/>
+            <QueuedSongList queue={data.queue}/>
         </>
-
     );
 }
 

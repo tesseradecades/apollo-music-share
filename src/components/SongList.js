@@ -1,10 +1,11 @@
 import React from 'react';
 import { Card, CardActions, CircularProgress, CardContent, CardMedia, Typography, IconButton, makeStyles } from '@material-ui/core';
 import { PlayArrow, Save, Pause } from '@material-ui/icons';
-import { useSubscription } from '@apollo/react-hooks';
+import { useSubscription, useMutation } from '@apollo/react-hooks';
 import { GET_SONGS } from '../graphql/subscriptions';
 import { SongContext } from '../App';
 import {PLAY_SONG, PAUSE_SONG, SET_SONG} from '../reducer';
+import { ADD_OR_REMOVE_FROM_QUEUE } from '../graphql/mutations';
 
 function SongList(){
     const {data, loading, error} = useSubscription(GET_SONGS)
@@ -58,11 +59,24 @@ function Song({song}){
     const {state, dispatch} = React.useContext(SongContext);
     const {artist,thumbnail,title} = song;
     const [currentSongPlaying, setCurrentSongPlaying] = React.useState(false);
+    const [addOrRemoveFromQueue] = useMutation(ADD_OR_REMOVE_FROM_QUEUE,{
+        onCompleted: data =>{
+            localStorage.setItem('queue',JSON.stringify(data.addOrRemoveFromQueue))
+        }
+    });
 
     React.useEffect(()=>{
         const isSongPlaying = state.isPlaying && id===state.song.id;
         setCurrentSongPlaying(isSongPlaying);
     },[id,state.song.id, state.isPlaying])
+
+    function handleAddOrRemoveFromQueue(){
+        addOrRemoveFromQueue({
+            variables: {
+                input: {...song, __typename: 'Song'}
+            }
+        });
+    }
 
     function handleTogglePlay(){
         dispatch({type: SET_SONG, payload: {song}})
@@ -86,7 +100,7 @@ function Song({song}){
                         <IconButton onClick={handleTogglePlay} size="small" color="primary">
                             {currentSongPlaying ? <Pause/> :<PlayArrow/>}
                         </IconButton>
-                        <IconButton size="small" color="secondary">
+                        <IconButton onClick={handleAddOrRemoveFromQueue} size="small" color="secondary">
                             <Save/>
                         </IconButton>
                     </CardActions>
