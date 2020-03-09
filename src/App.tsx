@@ -3,17 +3,25 @@ import Header from './components/Header';
 import AddSong from './components/AddSong';
 import SongList from './components/SongList';
 import SongPlayer from './components/SongPlayer';
-import {Grid, Hidden, useMediaQuery} from '@material-ui/core';
-import SongReducer, {SongContext} from './reducer';
+import {Grid, Hidden, useMediaQuery, Theme} from '@material-ui/core';
+import songReducer, {SongContext, SongContextProps} from './reducer';
 
 function App() {
-  const greaterThanMd =useMediaQuery(theme=>theme.breakpoints.up('md'));
-  const greaterThanSm =useMediaQuery(theme=>theme.breakpoints.up('sm'));
+  // reactive ui
+  const greaterThanMd =useMediaQuery((theme: Theme)=>theme.breakpoints.up('md'));
+  const greaterThanSm =useMediaQuery((theme: Theme)=>theme.breakpoints.up('sm'));
+
+  // manage song state
+  /*
   const initialSongState = React.useContext(SongContext);
   const [state, dispatch] = React.useReducer(SongReducer,initialSongState);
-  return (
-    <SongContext.Provider value={{state,dispatch}}>
+  */
+  const initialContext: SongContextProps = React.useContext(SongContext);
+  const [state,dispatch] = React.useReducer(songReducer,initialContext.state);
+  const songProviderContext = {state,dispatch};
 
+  return (
+    <SongContext.Provider value={songProviderContext}>
       <Hidden only="xs">
         <Header/>
       </Hidden>
