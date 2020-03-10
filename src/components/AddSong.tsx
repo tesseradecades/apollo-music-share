@@ -1,11 +1,12 @@
 import React from 'react';
 import { Dialog, DialogActions, TextField, InputAdornment, Button, DialogTitle, DialogContent, makeStyles } from '@material-ui/core';
 import { Link, AddBoxOutlined } from '@material-ui/icons'
-import ReactPlayer from 'react-player';
+import ReactPlayer, { ReactPlayerProps } from 'react-player';
 import SoundcloudPlayer from 'react-player/lib/players/SoundCloud';
 import YoutubePlayer from 'react-player/lib/players/YouTube';
 import {ADD_SONG} from '../graphql/mutations';
 import { useMutation } from '@apollo/react-hooks';
+import { ISong } from '../reducer';
 
 const useStyles = makeStyles(theme => ({
     container:{
@@ -51,19 +52,19 @@ function AddSong(){
         setDialog(false);
     }
 
-    async function handleEditSong({player}){
+    async function handleEditSong({player}: ReactPlayerProps){
         const nestedPlayer = player.player.player;
-        let songData;
         if(nestedPlayer.getVideoData){
-            songData = getYoutubeInfo(nestedPlayer);
+            const songData: ISong = getYoutubeInfo(nestedPlayer);
+            setSong({...songData,url});
         }else if(nestedPlayer.getCurrentSound){
-            songData = await getSoundcloudInfo(nestedPlayer);
+            const songData: ISong = await getSoundcloudInfo(nestedPlayer);
+            setSong({...songData,url});
         }
-        setSong({...songData,url});
     }
 
-    function getSoundcloudInfo(player){
-        return new Promise(resolve => {
+    function getSoundcloudInfo(player: { getCurrentSound: (arg0: (songData: any) => void) => void; }): Promise<ISong>{
+        return new Promise<ISong>(resolve => {
             player.getCurrentSound(songData=>{
                 if(songData){
                     resolve({
@@ -71,13 +72,15 @@ function AddSong(){
                         duration: Number(songData.duration / 1000),
                         thumbnail: songData.artwork_url.replace('-large','-t500x500'),
                         title: songData.title,
-                    });
+                    } as ISong);
+                }else{
+                    resolve(DEFAULT_SONG as ISong);
                 }
             });
         })
     }
 
-    function getYoutubeInfo(player){
+    function getYoutubeInfo(player: { getDuration: () => any; getVideoData: () => { title: any; video_id: any; author: any; }; }): ISong{
         const duration = player.getDuration();
         const {title, video_id, author} = player.getVideoData();
         const thumbnail = `http://img.youtube.com/vi/${video_id}/0.jpg`;
@@ -86,11 +89,10 @@ function AddSong(){
             duration,            
             thumbnail,
             title
-        }
+        } as ISong
     }
 
     async function handleAddSong(){
-        //addSong({variables:})
         const {artist, duration, thumbnail, title, url} = song
         try{
             await addSong({

@@ -2,7 +2,7 @@ import React from 'react';
 import QueuedSongList from './QueuedSongList';
 import { Card, CardContent, Typography, IconButton, Slider, CardMedia, makeStyles } from '@material-ui/core';
 import { SkipPrevious, SkipNext, PlayArrow, Pause } from '@material-ui/icons';
-import { PAUSE_SONG, PLAY_SONG, SET_SONG, SongContext} from '../reducer';
+import { SongCommand, SongContext} from '../reducer';
 import { GET_QUEUED_SONGS } from '../graphql/queries';
 import { useQuery } from '@apollo/react-hooks';
 import ReactPlayer from 'react-player';
@@ -53,21 +53,21 @@ function SongPlayer(){
         const nextSong = data.queue[positionInQueue+1]
         if(played === 1 && nextSong){
             setPlayed(0);
-            dispatch({type: SET_SONG, payload:{ song:nextSong}})
+            dispatch({type: SongCommand.SET_SONG, payload:{ song:nextSong}})
         }
     },[data.queue,played,dispatch,positionInQueue]);
 
     function handlePlayNextSong(){
         const nextSong = data.queue[positionInQueue+1]
         if(played && nextSong){
-            dispatch({type: SET_SONG, payload:{ song:nextSong}})
+            dispatch({type: SongCommand.SET_SONG, payload:{ song:nextSong}})
         }
     }
 
     function handlePlayPrevSong(){
         const prevSong = data.queue[positionInQueue-1];
         if(prevSong){
-            dispatch({type: SET_SONG, payload:{ song:prevSong}});
+            dispatch({type: SongCommand.SET_SONG, payload:{ song:prevSong}});
         }
     }
 
@@ -85,7 +85,7 @@ function SongPlayer(){
     }
 
     function handleTogglePlay(){
-        dispatch({type: state.isPlaying ? PAUSE_SONG : PLAY_SONG});
+        dispatch({type: state.isPlaying ? SongCommand.PAUSE_SONG : SongCommand.PLAY_SONG});
     }
 
     function formatDuration(seconds){

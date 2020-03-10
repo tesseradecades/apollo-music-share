@@ -6,7 +6,7 @@ export enum SongCommand{
     SET_SONG
 }
 
-type ISong ={
+export type ISong ={
     artist:string
     duration:number
     id:string
