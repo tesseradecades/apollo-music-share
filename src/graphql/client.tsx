@@ -1,10 +1,12 @@
 import ApolloClient from 'apollo-client';
 import {WebSocketLink} from 'apollo-link-ws';
-import {InMemoryCache} from 'apollo-cache-inmemory';
+import {InMemoryCache, NormalizedCacheObject} from 'apollo-cache-inmemory';
 import {gql} from 'apollo-boost';
 import { GET_QUEUED_SONGS } from './queries';
 
-const client = new ApolloClient({
+type TSong={ id: string; }
+
+const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
     link: new WebSocketLink({
         uri: 'wss://nwe8978-apollo-music-share.herokuapp.com/v1/graphql',
         options: {
@@ -47,9 +49,9 @@ const client = new ApolloClient({
                 })
                 if(queryResult){
                     const { queue } =queryResult;
-                    const isInQueue = queue.some(song=> song.id === input.id);
+                    const isInQueue = queue.some((song: TSong)=> song.id === input.id);
                     const newQueue = isInQueue ? 
-                        queue.filter(song=>song.id !== input.id)
+                        queue.filter((song: TSong)=>song.id !== input.id)
                         : [...queue,input]
                     cache.writeQuery({
                         query: GET_QUEUED_SONGS,
@@ -63,8 +65,8 @@ const client = new ApolloClient({
     }
 });
 
-const localQueue = localStorage.getItem('queue')
-const hasQueue = Boolean(localQueue);
+const localQueue: string = localStorage.getItem('queue') || '';
+const hasQueue: boolean = Boolean(localQueue);
 
 const data = {
     queue: hasQueue ? JSON.parse(localQueue) : []

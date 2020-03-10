@@ -3,7 +3,7 @@ import { Card, CardActions, CircularProgress, CardContent, CardMedia, Typography
 import { PlayArrow, Save, Pause } from '@material-ui/icons';
 import { useSubscription, useMutation } from '@apollo/react-hooks';
 import { GET_SONGS } from '../graphql/subscriptions';
-import {PLAY_SONG, PAUSE_SONG, SET_SONG, SongContext} from '../reducer';
+import {SongCommand, SongContext} from '../reducer';
 import { ADD_OR_REMOVE_FROM_QUEUE } from '../graphql/mutations';
 
 function SongList(){
@@ -78,8 +78,8 @@ function Song({song}){
     }
 
     function handleTogglePlay(){
-        dispatch({type: SET_SONG, payload: {song}})
-        dispatch({type: state.isPlaying ? PAUSE_SONG : PLAY_SONG});
+        dispatch({type: SongCommand.SET_SONG, payload: {song}})
+        dispatch({type: state.isPlaying ? SongCommand.PAUSE_SONG : SongCommand.PLAY_SONG});
     }
 
     return (
